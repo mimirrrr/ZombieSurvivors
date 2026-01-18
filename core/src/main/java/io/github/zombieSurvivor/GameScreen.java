@@ -34,8 +34,7 @@ public class GameScreen implements Screen {
     // XY CORDS
     private BitmapFont font;
     //GENEROVANI MAPY
-    private TiledMap map;
-    private OrthogonalTiledMapRenderer mapRenderer;
+    LevelManager levelManager;
     //UI COMPONENTS
     private Stage stage;
     private Skin skin;
@@ -56,10 +55,9 @@ public class GameScreen implements Screen {
     public void show() {
         font =  new BitmapFont();
         napis = new Texture("libgdx.png");
-        map = new TmxMapLoader().load("tileset.tmx");
-        mapRenderer = new OrthogonalTiledMapRenderer(map);
-        TiledMapTileLayer layer = (TiledMapTileLayer) map.getLayers().get(0);
-        player = new Player(0,0, "player1.png",layer);
+        levelManager = new LevelManager("tileset.tmx");
+
+        player = new Player(400,800, "player1.png",levelManager);
         camera = new OrthographicCamera();
         viewport = new FitViewport(1040, 520, camera);
         stage = new Stage(new ScreenViewport());
@@ -109,13 +107,11 @@ public class GameScreen implements Screen {
 
     @Override
     public void render(float delta) {
-
         camera.position.set(player.getX(),player.getY(),0);
         camera.update();
         Color color = new Color(0f, 0f, 0f, 1f);
         ScreenUtils.clear(color);
-        mapRenderer.setView(camera);
-        mapRenderer.render();
+        levelManager.render(camera);
         if(Gdx.input.isKeyJustPressed(Input.Keys.TAB)){
             menuOpened = !menuOpened;
             stage.getRoot().setVisible(menuOpened);
@@ -151,5 +147,6 @@ public class GameScreen implements Screen {
         player.dispose();
         stage.dispose();
         skin.dispose();
+        levelManager.dispose();
     }
 }

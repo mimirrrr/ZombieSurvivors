@@ -8,26 +8,20 @@ import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.scenes.scene2d.ui.Cell;
 
 public class Player {
-
     private Texture texture;
-    private TiledMapTileLayer collisionLayer;
+    private LevelManager levelManager;
+    private Direction facing = Direction.UP;
     private float speed = 200f;
-    private float x=400;
-    private float y=800;
+    private float x;
+    private float y;
+    private float collisionWidth = 62f;
+    private float collisionHeight = 94f;
 
-    private boolean isWalkable(float x, float y){
-        int cellX = (int)(x/collisionLayer.getTileWidth());
-        int cellY = (int)(y/collisionLayer.getTileWidth());
-        TiledMapTileLayer.Cell cell = collisionLayer.getCell(cellX,cellY);
-        if(cell == null) return false;
-        return (boolean) cell.getTile().getProperties().get("walkable");
-    }
-
-    Player(float x, float y, String pathImage, TiledMapTileLayer collisionLayer) {
+    Player(float x, float y, String pathImage, LevelManager levelManager) {
         this.x = x;
         this.y = y;
         texture = new Texture(pathImage);
-        this.collisionLayer = collisionLayer;
+        this.levelManager = levelManager;
     }
     public void update(float delta) {
         float currentSpeed = speed;
@@ -39,25 +33,43 @@ public class Player {
 
         if(Gdx.input.isKeyPressed(Input.Keys.A)){
             nextX-= delta*currentSpeed;
+            facing = Direction.LEFT;
         }
         if(Gdx.input.isKeyPressed(Input.Keys.D)){
             nextX+= delta*currentSpeed;
+            facing = Direction.RIGHT;
         }
 
         if(Gdx.input.isKeyPressed(Input.Keys.W)){
             nextY+= delta*currentSpeed;
+            facing = Direction.UP;
         }
         if(Gdx.input.isKeyPressed(Input.Keys.S)){
             nextY-= delta*currentSpeed;
+            facing = Direction.DOWN;
         }
 
-        if(isWalkable(nextX, y)){
-            x=nextX;
-        }
-        if(isWalkable(x, nextY)){
-            y=nextY;
+        // Check Horizontal (Left/Right)
+        if (nextX != x) {
+            float checkX = (nextX > x) ? nextX + collisionWidth/2 : nextX - collisionWidth/2;
+            // Check top, middle, and bottom to ensure we don't straddle a tile
+            if(levelManager.isWalkable(checkX, y - collisionHeight/2) &&
+               levelManager.isWalkable(checkX, y) &&
+               levelManager.isWalkable(checkX, y + collisionHeight/2)){
+                x = nextX;
+            }
         }
 
+        // Check Vertical (Up/Down)
+        if (nextY != y) {
+            float checkY = (nextY > y) ? nextY + collisionHeight/2 : nextY - collisionHeight/2;
+            // Check left, middle, and right
+            if(levelManager.isWalkable(x - collisionWidth/2, checkY) &&
+               levelManager.isWalkable(x, checkY) &&
+               levelManager.isWalkable(x + collisionWidth/2, checkY)){
+                y = nextY;
+            }
+        }
     }
     public void render(SpriteBatch batch){
         batch.draw(texture, x - texture.getWidth()/2f, y - texture.getHeight()/2f);
@@ -70,5 +82,8 @@ public class Player {
     }
     public float getY() {
         return y;
+    }
+    public Direction getFacing() {
+        return facing;
     }
 }
