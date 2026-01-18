@@ -8,11 +8,6 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.maps.tiled.TiledMap;
-import com.badlogic.gdx.maps.tiled.TiledMapRenderer;
-import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
-import com.badlogic.gdx.maps.tiled.TmxMapLoader;
-import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
@@ -35,6 +30,8 @@ public class GameScreen implements Screen {
     private BitmapFont font;
     //GENEROVANI MAPY
     LevelManager levelManager;
+    //FISHING
+    FishingController fishingController;
     //UI COMPONENTS
     private Stage stage;
     private Skin skin;
@@ -56,7 +53,7 @@ public class GameScreen implements Screen {
         font =  new BitmapFont();
         napis = new Texture("libgdx.png");
         levelManager = new LevelManager("tileset.tmx");
-
+        fishingController = new FishingController(levelManager);
         player = new Player(400,800, "player1.png",levelManager);
         camera = new OrthographicCamera();
         viewport = new FitViewport(1040, 520, camera);
@@ -128,11 +125,26 @@ public class GameScreen implements Screen {
         player.render(batch);
         batch.draw(napis, 1000, 1000);
         batch.end();
+        fishingController.update(delta);
+        boolean canMove = !menuOpened && !fishingController.isFishing();
+        if(canMove){
+            player.update(delta);
+        }
         if(menuOpened){
             stage.act(delta);
             stage.draw();
-        }else{
-            player.update(delta);
+        }
+        if(Gdx.input.isKeyJustPressed(Input.Keys.E)){
+            if(!fishingController.isFishing()){
+                fishingController.startFishing(player.getX(), player.getY(),player.getFacing());
+            }else{
+                boolean cought =  fishingController.reelFish();
+                if(cought){
+                    System.out.println("YOU COUGHT A FISH YEEEY :) ");
+                }else{
+                    System.out.println("Nothing on the hook.");
+                }
+            }
         }
     }
     @Override

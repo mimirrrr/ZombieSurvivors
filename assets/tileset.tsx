@@ -13,6 +13,7 @@
  </tile>
  <tile id="2">
   <properties>
+   <property name="fishable" type="bool" value="true"/>
    <property name="walkable" type="bool" value="false"/>
   </properties>
  </tile>
