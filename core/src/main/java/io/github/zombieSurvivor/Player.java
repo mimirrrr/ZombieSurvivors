@@ -4,21 +4,27 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
 public class Player {
     private Texture texture;
+    private TextureRegion[] frames;
     private LevelManager levelManager;
     private Direction facing = Direction.UP;
     private float speed = 200f;
     private float x;
     private float y;
-    private float collisionWidth = 62f;
-    private float collisionHeight = 94f;
+    private float collisionWidth = 28f;
+    private float collisionHeight = 28f;
 
     Player(float x, float y, String pathImage, LevelManager levelManager) {
         this.x = x;
         this.y = y;
-        texture = new Texture(pathImage);
+        TextureRegion[][] tmp = TextureRegion.split(new Texture(pathImage),32,32);
+        frames = new TextureRegion[8];
+        for (int i = 0; i < 8; i++) {
+            frames[i] = tmp[0][i];
+        }
         this.levelManager = levelManager;
     }
     public void update(float delta) {
@@ -26,26 +32,27 @@ public class Player {
         if(Gdx.input.isKeyPressed(Input.Keys.SHIFT_LEFT)){
             currentSpeed *= 2;
         }
+
+        boolean up = Gdx.input.isKeyPressed(Input.Keys.W);
+        boolean right = Gdx.input.isKeyPressed(Input.Keys.D);
+        boolean down = Gdx.input.isKeyPressed(Input.Keys.S);
+        boolean left = Gdx.input.isKeyPressed(Input.Keys.A);
+
+        if(up && right) facing = Direction.UP_RIGHT;
+        else if(down && right) facing = Direction.DOWN_RIGHT;
+        else if(down && left) facing = Direction.DOWN_LEFT;
+        else if(up && left) facing = Direction.UP_LEFT;
+        else if(up) facing = Direction.UP;
+        else if(right) facing = Direction.RIGHT;
+        else if(down) facing = Direction.DOWN;
+        else if(left) facing = Direction.LEFT;
         float nextX=x;
         float nextY=y;
 
-        if(Gdx.input.isKeyPressed(Input.Keys.A)){
-            nextX-= delta*currentSpeed;
-            facing = Direction.LEFT;
-        }
-        if(Gdx.input.isKeyPressed(Input.Keys.D)){
-            nextX+= delta*currentSpeed;
-            facing = Direction.RIGHT;
-        }
-
-        if(Gdx.input.isKeyPressed(Input.Keys.W)){
-            nextY+= delta*currentSpeed;
-            facing = Direction.UP;
-        }
-        if(Gdx.input.isKeyPressed(Input.Keys.S)){
-            nextY-= delta*currentSpeed;
-            facing = Direction.DOWN;
-        }
+        if(up) nextY+=delta*currentSpeed;
+        if(right) nextX+=delta*currentSpeed;
+        if(down) nextY-=delta*currentSpeed;
+        if(left) nextX-=delta*currentSpeed;
 
         // Check Horizontal (Left/Right)
         if (nextX != x) {
@@ -70,7 +77,18 @@ public class Player {
         }
     }
     public void render(SpriteBatch batch){
-        batch.draw(texture, x - texture.getWidth()/2f, y - texture.getHeight()/2f);
+        TextureRegion currentFrame = frames[0];
+        switch(facing){
+            case UP: currentFrame = frames[0]; break;
+            case UP_RIGHT: currentFrame = frames[1]; break;
+            case RIGHT: currentFrame = frames[2]; break;
+            case DOWN_RIGHT: currentFrame = frames[3]; break;
+            case DOWN: currentFrame = frames[4]; break;
+            case DOWN_LEFT: currentFrame = frames[5]; break;
+            case LEFT: currentFrame = frames[6]; break;
+            case UP_LEFT: currentFrame = frames[7]; break;
+        }
+        batch.draw(currentFrame, x - 16, y - 16);
     }
     public void dispose() {
         texture.dispose();
