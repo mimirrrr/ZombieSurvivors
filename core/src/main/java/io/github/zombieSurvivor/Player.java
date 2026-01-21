@@ -21,8 +21,9 @@ public class Player {
         this.x = x;
         this.y = y;
         TextureRegion[][] tmp = TextureRegion.split(new Texture(pathImage),32,32);
+        //HARDCODED 8 DIRECTIONS IN SPRITE
         frames = new TextureRegion[8];
-        for (int i = 0; i < 8; i++) {
+        for (int i = 0; i < frames.length; i++) {
             frames[i] = tmp[0][i];
         }
         this.levelManager = levelManager;
@@ -30,7 +31,7 @@ public class Player {
     public void update(float delta) {
         float currentSpeed = speed;
         if(Gdx.input.isKeyPressed(Input.Keys.SHIFT_LEFT)){
-            currentSpeed *= 2;
+            currentSpeed *= 1.5;
         }
 
         boolean up = Gdx.input.isKeyPressed(Input.Keys.W);
@@ -46,6 +47,7 @@ public class Player {
         else if(right) facing = Direction.RIGHT;
         else if(down) facing = Direction.DOWN;
         else if(left) facing = Direction.LEFT;
+
         float nextX=x;
         float nextY=y;
 

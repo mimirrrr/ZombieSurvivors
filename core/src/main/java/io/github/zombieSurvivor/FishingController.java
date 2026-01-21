@@ -14,15 +14,20 @@ public class FishingController {
     }
 
     public boolean startFishing(float playerX, float playerY, Direction direction){
-        float offset = 64f;
+        float offset = 64f; //2 tiles
         float targetX = playerX;
         float targetY = playerY;
 
         switch (direction){
-            case LEFT: targetX-=offset; break;
-            case RIGHT: targetX+=offset; break;
             case UP: targetY+=offset; break;
+            case UP_RIGHT: targetX+=offset; targetY+=offset; break;
+            case RIGHT: targetX+=offset; break;
+            case DOWN_RIGHT: targetX+=offset; targetY-=offset; break;
             case DOWN: targetY-=offset; break;
+            case DOWN_LEFT: targetX-=offset; targetY-=offset; break;
+            case LEFT: targetX-=offset; break;
+            case UP_LEFT: targetX-=offset; targetY+=offset; break;
+
         }
         if(levelManager.isFishable(targetX, targetY)){
             state=State.WAITING;
