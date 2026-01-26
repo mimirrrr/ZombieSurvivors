@@ -1,13 +1,20 @@
 package io.github.zombieSurvivor;
 
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
+
+import java.util.Random;
 
 public class FishingController {
     private LevelManager levelManager;
-    public enum State {IDLE, WAITING, BITING}
+    public enum State {IDLE, CASTING, WAITING, BITING}
     private State state=State.IDLE;
     private float timer=0;
-    private Vector2 bobberPosition=new Vector2();
+    private Vector2 targetPosition =new Vector2();
+    private Random random=new Random();
+    private Vector2 currentPosition=new Vector2();
+
 
     public FishingController(LevelManager levelManager) {
         this.levelManager = levelManager;
@@ -30,8 +37,9 @@ public class FishingController {
 
         }
         if(levelManager.isFishable(targetX, targetY)){
-            state=State.WAITING;
-            bobberPosition.set(targetX, targetY);
+            state=State.CASTING;
+            targetPosition.set(targetX, targetY);
+            currentPosition.set(playerX, playerY);
         }else{
             return false;
         }
@@ -44,7 +52,14 @@ public class FishingController {
             return;
         }
         timer+=delta;
-
+        if(state==State.CASTING){
+            float speed = 5f * delta;
+            currentPosition.lerp(targetPosition, speed);
+            if(currentPosition.dst(targetPosition)<0.3f){
+                currentPosition.set(targetPosition);
+                state=State.WAITING;
+            }
+        }
         if(state==State.WAITING && timer>6){
             state=State.BITING;
             timer=0;
@@ -74,5 +89,29 @@ public class FishingController {
     }
     public boolean isFishing(){
         return(state!=State.IDLE);
+    }
+    public void render(float playerX, float playerY, ShapeRenderer shapeRenderer){
+        if(state==State.IDLE){
+            return;
+        }
+        int shakingX=0;
+        int shakingY=0;
+        if(state == State.BITING){
+            shakingX= random.nextInt(-1,1);
+            shakingY= random.nextInt(-1,1);
+        }
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+        shapeRenderer.setColor(Color.WHITE);
+        shapeRenderer.line(playerX, playerY, currentPosition.x+shakingX, currentPosition.y+shakingY);
+        shapeRenderer.end();
+
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+        shapeRenderer.setColor(Color.RED);
+        shapeRenderer.circle(currentPosition.x+shakingX, currentPosition.y+shakingY,5);
+        shapeRenderer.end();
+    }
+
+    public State getState() {
+        return state;
     }
 }

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <tileset version="1.10" tiledversion="1.11.2" name="Sprite-0002" tilewidth="32" tileheight="32" tilecount="60" columns="10">
- <image source="Sprite-0002.png" width="320" height="192"/>
+ <image source="Map.png" width="320" height="192"/>
  <tile id="4">
   <properties>
    <property name="fishable" type="bool" value="true"/>

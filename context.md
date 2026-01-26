@@ -6,24 +6,25 @@
 *   **Build Tool:** Gradle 9.2.1
 *   **Assets:** Aseprite (.png), Tiled (.tmx/.tsx)
 
-## Current Progress (Updated Jan 20, 2026)
+## Current Progress (Updated Jan 21, 2026)
 
 ### Architecture
 *   **Screens:** Screen-based system (`GameScreen.java`). `Main` acts as the Director.
 *   **UI System:** Integrated **Scene2D**. Added `Stage`, `Skin`, and a `Table`-based layout for menus.
 *   **Entities:** `Player.java` handles movement and collision. Now supports 8-directional movement and spritesheet rendering.
-*   **World:** `LevelManager` handles map loading, rendering, and collision/water queries.
+*   **World:** `LevelManager` handles map loading, rendering, and complex collision/water queries.
 *   **Systems:** `FishingController` manages the fishing state machine (Idle -> Waiting -> Biting).
 
 ### Features Implemented
 1.  **Movement:** Smooth WASD movement + Sprint (Shift). 
     *   **8-Directional Support:** Added diagonal movement and facing logic.
     *   **Visuals:** Integrated a 256x32 spritesheet for the player (8 frames: Up, Up-Right, Right, Down-Right, Down, Down-Left, Left, Up-Left).
-2.  **Map:** Tiled Map loading via `LevelManager`.
-3.  **Collision:** Sliding collision against `"walkable"` property. Collision box tuned to 28x28 for better feel.
+2.  **Map:** Tiled Map loading via `LevelManager`. Supports multiple layers (e.g., "PODLAHA", "STENY").
+3.  **Collision System:** Advanced collision detection using Tiled Collision Editor shapes (Rectangles and Polygons). Iterates through all map layers to block movement if the player hits a defined shape.
 4.  **UI Menu (TAB):** Basic inventory/skills tabs.
 5.  **Fishing Logic:**
-    *   Press 'E' to cast bobber (checks for `"fishable"` tile property).
+    *   Press 'E' to cast bobber. 
+    *   **Smart Placement:** `isFishable` checks both the tile property and the collision boundary, preventing the bobber from landing on "grass" parts of water-transition tiles.
     *   Wait ~6s for bite -> Press 'E' within 2s to catch.
     *   Console output for feedback (Visuals pending).
 
